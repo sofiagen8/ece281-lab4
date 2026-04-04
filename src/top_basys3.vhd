@@ -26,7 +26,6 @@ architecture top_basys3_arch of top_basys3 is
 
     -- signal declarations
     
-  
 	-- component declarations
     component sevenseg_decoder is
         port (
@@ -68,14 +67,62 @@ architecture top_basys3_arch of top_basys3 is
         );
     end component clock_divider;
 	
+	signal w_clk : std_logic;
+	signal w_clk2 : std_logic;
+	signal w_clk_reset : std_logic;
+	signal w_elev_reset : std_logic;
+	signal w_floor : std_logic_vector(3 downto 0); --see if used
+	
 begin
-	-- PORT MAPS ----------------------------------------
-    	
+	-- PORT MAPS ----------------------------------------	
+	
+    elevator_controller_fsm_instance: elevator_controller_fsm port map(
+        i_clk => w_clk_reset,
+        i_reset => w_elev_reset,
+        is_stopped => sw(0),
+        go_up_down => sw(1)        
+        );	
+    elevator_controller_fsm_instance2: elevator_controller_fsm port map(
+        i_clk => w_clk_reset,
+        i_reset => w_elev_reset,
+        is_stopped => sw(15),
+        go_up_down => sw(14)        
+        );	
+	
+	clock_divider_instance: clock_divider 
+	   generic map( k_DIV => 25000000) --look here to figure out the clock testing thing
+	   port map(
+	       i_clk => clk,
+	       i_reset => btnL,
+	       o_clk => w_clk
+        );
+	clock_divider_instance2: clock_divider 
+	   generic map( k_DIV => 25000000) --look here to figure out the clock testing thing
+	   port map(
+	       i_clk => clk,
+	       i_reset => btnL,
+	       o_clk => w_clk2
+        );
+    TDM4_instance: TDM4
+    generic (k_WIDTH => 4); 
+        Port ( i_clk		
+           i_reset		
+           i_D3 		
+		   i_D2 		
+		   i_D1 		
+		   i_D0 		
+		   o_data	
+		   o_sel		
+		   
+	   );
+    
 	
 	-- CONCURRENT STATEMENTS ----------------------------
-	
+	   w_clk_reset <= btnU OR btnL;
+	   w_elev_reset <= btnU OR btnR;
 	-- LED 15 gets the FSM slow clock signal. The rest are grounded.
-	
+	   
+	   led(13 downto 2) <= (others => '0');
 	-- leave unused switches UNCONNECTED. Ignore any warnings this causes.
 	
 	-- reset signals
