@@ -122,7 +122,11 @@ begin
 		   
 	   );
     
-    --sevenseg decoder
+    sevenseg_decoder_instance: sevenseg_decoder
+    port map(
+        o_seg_n => seg,
+        i_hex => w_data
+    );
 	
 	-- CONCURRENT STATEMENTS ----------------------------
 	   w_clk_reset <= btnU OR btnL;
